@@ -7,8 +7,10 @@
     <link rel="stylesheet" href="https://bootswatch.com/darkly/bootstrap.min.css">
     <title>Social Auth</title>
     <style>
+        img {max-width: 50%; margin: 0 auto;}
         #fb-btn {margin-top:20px;}
         #profile, #logout, #feed{display: none;}
+        .panel-body{text-align: center;}
 
     </style>
 </head>
@@ -21,7 +23,7 @@
     <script>
         window.fbAsyncInit = function() {
             FB.init({
-            appId      : '1631976150199148',
+            appId      : 'YOURAPPID',
             cookie     : true,
             xfbml      : true,
             version    : 'v2.10'
@@ -64,13 +66,14 @@
             function testAPI(){
                 FB.api('/me?fields=name,picture,email, birthday, location', function(response){
                     if(response && !response.error){
-                        console.log(response);
+                        // console.log(response);
                         buildProfile(response);
                     }
 
-                    FB.api('/me/feed', function(response){
+                    FB.api('/me?fields=feed{attachments,message,story,created_time}', function(response){
                         if(response && !response.error){
-                            buildFeed(response)
+                            // console.log(response);
+                            buildFeed(response);
                         }
                     })
 
@@ -80,6 +83,7 @@
             function buildProfile(user){
                 let profile = `
                     <h3>${user.name}</h3>
+                    <img src="${user.picture.data.url}">
                     <ul class="list-group">
                         <li class="list-group-item">User ID: ${user.id}</li>
                         <li class="list-group-item">Email: ${user.email}</li>
@@ -92,14 +96,34 @@
             }
 
             function buildFeed(feed){
+                    // console.log(feed.feed.data);
                 let output = '<h3>Latest Posts</h3>';
-                for(let i in feed.data){
-                    if(feed.data[i].story){
+                for(let i in feed.feed.data){
+                    let data = feed.feed.data[i];
+                    // console.log(data)
+                    if(data.story){
                         output += `
                         <div class="well">
-                        ${feed.data[i].story} <span>${feed.data[i].created_time}</span>
+                        ${data.story} <span>${data.created_time}</span>
                         </div>
                         `;
+                    }
+                   
+                    for(let ii in data.attachments){
+                        console.log(data.attachments)
+                        if(data.attachments){
+                            output += `
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">${data.attachments.data[0].title}</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <a href="${data.attachments.data[0].target.url}">
+                                        <img src="${data.attachments.data[0].media.image.src}"></a>
+                                    </div>
+                                </div>
+                            `;
+                        }
                     }
                 }
                 document.getElementById('feed').innerHTML = output;
@@ -160,7 +184,9 @@
     <div class="container">
         <h3 id="heading">Log in to view your profile</h3>
         <div id="profile"></div>
-        <div id="feed"></div>
+        <div class="row">
+            <div id="feed" class="col-lg-4"></div>
+        </div>
     </div>
 
     
