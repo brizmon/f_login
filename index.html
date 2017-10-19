@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="https://bootswatch.com/darkly/bootstrap.min.css">
     <title>Social Auth</title>
     <style>
-        #fb-btn {margin-top:20px}
+        #fb-btn {margin-top:20px;}
+        #profile, #logout{display: none;}
+
     </style>
 </head>
 <body>
@@ -44,7 +46,9 @@
             function statusChangeCallback(response){
                 if(response.status === 'connected'){
                     console.log('logged in and authenticated')
+                    setElements(true);
                 }else {
+                    setElements(false);
                     console.log('not authenticated')
                 }
             }
@@ -54,6 +58,27 @@
             FB.getLoginStatus(function(response) {
                 statusChangeCallback(response);
             });
+            }
+
+            function setElements(isLoggedIn){
+                if(isLoggedIn){
+                    document.getElementById('logout').style.display = 'block';
+                    document.getElementById('profile').style.display = 'block';
+                    document.getElementById('fb-btn').style.display = 'none';
+                    document.getElementById('heading').style.display = 'none';
+                }else{
+                    document.getElementById('logout').style.display = 'none';
+                    document.getElementById('profile').style.display = 'none';
+                    document.getElementById('fb-btn').style.display = 'block';
+                    document.getElementById('heading').style.display = 'block';
+
+                }
+            }
+
+            function logout(){
+                FB.logout(function(response){
+                    setElements(false);
+                });
             }
     </script>
 
@@ -84,6 +109,11 @@
         </div><!--/.nav-collapse -->
         </div>
     </nav>
+
+    <div class="container">
+        <h3 id="heading">Log in to view your profile</h3>
+        <div id="profile"></div>
+    </div>
 
     
 
